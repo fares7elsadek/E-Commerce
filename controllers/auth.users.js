@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const httpmessage = require('../utils/htttpmessage');
 const jwt = require('../config/jwt');
 const verifyid = require('../utils/verifymongoid');
+const refreshtoken= require('../config/refreshJwt');
+const jwt_token = require('jsonwebtoken');
 const asyncWrapper = require('../middlewares/asyncWrapper');
 
 
@@ -64,8 +66,14 @@ const loginUser = asyncWrapper(async (req,res,next)=>{
         const error = appError.create("invalid username or password",400);
         return next(error);
     }
-    const token = jwt.generateToken(user._id,user.firstname,user.role);
-    user.token=token;
+    const access_token = jwt.generateToken(user._id,user.firstname,user.role);
+    const reftoken = refreshtoken.generateRefreshToken(user._id,user.firstname,user.role);
+    await User.findByIdAndUpdate(user._id,{token:reftoken});
+    res.cookie('refreshToken',reftoken,{
+        httpOnly:true,
+        maxAge:72*60*60*1000
+    });
+    user.token=access_token;
     const userData = {
         firstname:user.firstname,
         lastname:user.lastname,
@@ -104,10 +112,50 @@ const unblockUser = asyncWrapper(async(req,res,next)=>{
     res.status(200).json({status:httpmessage.SUCCESS});
 })
 
+//refresh token route
+const handelRefreshToken = asyncWrapper(async (req,res,next)=>{
+    const {refreshToken} = req.cookies;
+    if(!refreshToken) return next(appError.create('missing token',401));
+    const user = await User.findOne({token:refreshToken});
+    if(!user) return next(appError.create('invalid token',401));
+    jwt_token.verify(refreshToken,process.env.JWT_SECRET,(err,us)=>{
+        if(err || us.id!=user._id){
+            return next(appError.create('not authorized',403));
+        }
+        const access_token = jwt.generateToken(user._id,user.name,user.role);
+        res.json({token:access_token});
+    })
+})
+
+
+//logout
+const logout = asyncWrapper(async (req,res,next)=>{
+    const {refreshToken} = req.cookies;
+    if(!refreshToken) return next(appError.create('missing token',401));
+    const user = await User.findOne({token:refreshToken});
+    if(!user){
+        res.clearCookie("refreshToken",{
+            httpOnly:true,
+            secure:true
+        });
+        return res.sendStatus(204);
+    };
+    await User.findOneAndUpdate({token:refreshToken},{
+        token:""
+    })
+    res.clearCookie("refreshToken",{
+        httpOnly:true,
+        secure:true
+    });
+    return res.sendStatus(204);
+})
+
 
 module.exports = {
     registerUser,
     loginUser,
     blockUser,
-    unblockUser
+    unblockUser,
+    handelRefreshToken,
+    logout
 }

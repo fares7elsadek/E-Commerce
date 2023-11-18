@@ -7,8 +7,6 @@ const userRoles = require('../utils/userRoles');
 const validation = require('../middlewares/validationShema');
 
 
-
-
 //register user
 router.post('/register',validation.UsersRigister(),controllers.registerUser);
 
@@ -22,5 +20,13 @@ router.put('/block-user/:userId',verifyToken,allowTo(userRoles.ADMIN),controller
 
 //unblock user
 router.put('/unblock-user/:userId',verifyToken,allowTo(userRoles.ADMIN),controllers.unblockUser);
+
+
+//refresh token
+router.get('/refresh',controllers.handelRefreshToken);
+
+
+//logout
+router.get('/logout',controllers.logout);
 
 module.exports=router;

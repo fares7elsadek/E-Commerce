@@ -3,6 +3,7 @@ require('dotenv').config();
 const app = express();
 const dbConnect = require('./config/dbConnect');
 const httpmessage = require('./utils/htttpmessage');
+const cookieParser = require('cookie-parser');
 const authusers = require('./routes/auth.users');
 const usersRoute = require('./routes/users');
 const port  = process.env.PORT || 5000 ;
@@ -11,6 +12,7 @@ const port  = process.env.PORT || 5000 ;
 
 dbConnect();
 app.use(express.json());
+app.use(cookieParser());
 
 //users authentication
 app.use('/api/user',authusers);

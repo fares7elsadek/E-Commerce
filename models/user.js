@@ -44,6 +44,9 @@ var userSchema = new mongoose.Schema({
         type:String
     },
     wishlist:[{type:mongoose.Schema.ObjectId,ref:"Product"}],
+    token:{
+        type:String
+    }
   },
   {
     timeseries:true
