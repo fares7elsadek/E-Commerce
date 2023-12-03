@@ -151,11 +151,25 @@ const logout = asyncWrapper(async (req,res,next)=>{
 })
 
 
+const UpdatePassword = asyncWrapper(async (req,res,next)=>{
+    const {id} = req.user;
+    const {password} = req.body;
+    if(!password){
+        return next(appError.create('password is missing',500));
+    }
+    const hashedpassword = await bcrypt.hash(String(password),10);
+    const user = await User.findByIdAndUpdate(id,{$set:{password:hashedpassword}},{new:true});
+    if(!user)return next(appError.create('user not found',500));
+    res.status(200).json({status:httpmessage.SUCCESS});
+})
+
+
 module.exports = {
     registerUser,
     loginUser,
     blockUser,
     unblockUser,
     handelRefreshToken,
-    logout
+    logout,
+    UpdatePassword
 }

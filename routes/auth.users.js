@@ -29,4 +29,8 @@ router.get('/refresh',controllers.handelRefreshToken);
 //logout
 router.get('/logout',controllers.logout);
 
+
+//update password
+router.put('/password',verifyToken,controllers.UpdatePassword);
+
 module.exports=router;

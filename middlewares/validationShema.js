@@ -19,7 +19,20 @@ const UsersLogin = ()=>{
     ];
 };
 
+//product validation
+const ProductValidation = ()=>{
+    return [
+        body('title').notEmpty(),
+        body('description').notEmpty(),
+        body('price').notEmpty(),
+        body('category').notEmpty(),
+        body('brand').notEmpty(),
+        body('quantity').notEmpty()
+    ];
+};
+
 module.exports={
     UsersRigister,
-    UsersLogin
+    UsersLogin,
+    ProductValidation
 }
