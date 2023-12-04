@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const authusers = require('./routes/auth.users');
 const usersRoute = require('./routes/users');
 const morgan = require('morgan');
+const BlogRoute = require('./routes/BlogRoute');
 const ProductRoute = require('./routes/productRoute');
 const port  = process.env.PORT || 5000 ;
 
@@ -22,6 +23,8 @@ app.use('/api/user',authusers);
 app.use('/api/user',usersRoute);
 //product route
 app.use('/api/product',ProductRoute);
+//blog route
+app.use('/api/blog',BlogRoute);
 
 app.all('*',(req,res)=>{
     res.status(404).json({status:httpmessage.FAIL,message:"NOT FOUND"});

@@ -31,8 +31,19 @@ const ProductValidation = ()=>{
     ];
 };
 
+
+//blog validation
+const BlogValidation =()=>{
+    return [
+        body('title').notEmpty(),
+        body('description').notEmpty(),
+        body('category').notEmpty()
+    ];
+}
+
 module.exports={
     UsersRigister,
     UsersLogin,
-    ProductValidation
+    ProductValidation,
+    BlogValidation
 }

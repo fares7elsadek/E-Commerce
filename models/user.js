@@ -1,4 +1,5 @@
 const mongoose = require('mongoose'); 
+const crypto = require('crypto');
 
 
 var userSchema = new mongoose.Schema({
@@ -46,12 +47,22 @@ var userSchema = new mongoose.Schema({
     wishlist:[{type:mongoose.Schema.ObjectId,ref:"Product"}],
     token:{
         type:String
-    }
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date
   },
   {
     timeseries:true
   }
 );
 
+userSchema.methods.CreatePasswordResetToken = function(){
+     const Token = crypto.randomBytes(32).toString("hex");
+     const tokenHash = crypto.createHash("sha256").update(Token).digest("hex");
+     this.passwordResetToken=tokenHash;
+     this.passwordResetExpires= Date.now() + 10 * 60 *1000;
+     return Token;
+}
 
 module.exports = mongoose.model('User', userSchema);

@@ -33,4 +33,12 @@ router.get('/logout',controllers.logout);
 //update password
 router.put('/password',verifyToken,controllers.UpdatePassword);
 
+
+//forget password token
+router.post("/forgot-password-token", controllers.forgotPasswordToken);
+
+
+//reset password
+router.put("/reset-password/:token", controllers.resetPassword);
+
 module.exports=router;
