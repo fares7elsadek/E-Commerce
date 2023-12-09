@@ -49,10 +49,22 @@ const PCategoryValidation =()=>{
     ];
 }
 
+
+//Coupon validaion
+const CouponValidation =()=>{
+    return [
+        body('name').notEmpty(),
+        body('expiry').notEmpty(),
+        body('discount').notEmpty()
+
+    ];
+}
+
 module.exports={
     UsersRigister,
     UsersLogin,
     ProductValidation,
     BlogValidation,
-    PCategoryValidation
+    PCategoryValidation,
+    CouponValidation
 }

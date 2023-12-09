@@ -22,9 +22,16 @@ router.get('/',controllers.GetallProucts);
 //delete A Product
 router.delete('/:productId',verifytoken,allowTo(userRoles.ADMIN),controllers.deleteProduct);
 
+//add to wishlist 
+router.put('/wishlist',verifytoken,controllers.AddToWishlist);
+
+//Rating
+router.put('/rating',verifytoken,controllers.AddRating);
 
 //update a product
 router.put('/:productId',verifytoken,allowTo(userRoles.ADMIN),controllers.UpdateProduct);
+
+
 
 
 module.exports=router;

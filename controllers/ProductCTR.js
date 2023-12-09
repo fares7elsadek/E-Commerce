@@ -1,4 +1,5 @@
 const Product = require('../models/ProductModel');
+const User =require('../models/user');
 const asyncWrapper = require('../middlewares/asyncWrapper');
 const { body,validationResult} = require('express-validator');
 const httpmessage = require('../utils/htttpmessage');
@@ -74,11 +75,93 @@ const UpdateProduct = asyncWrapper(async (req,res,next)=>{
     res.status(200).json({status:httpmessage.SUCCESS});
 });
 
+//add to wishlist
+const AddToWishlist = asyncWrapper(async (req,res,next)=>{
+    const prodcut_id = req.body.prodId;
+    const userId = req.user.id;
+    verifyid(prodcut_id);
+    const product = await Product.findById(prodcut_id);
+    if(!product) return next(appError.create("invalid product id",400));
+    const user = await User.findById(userId);
+    if(!user) return next(appError.create("Not authorized",400));
+    const alreadeyAdded = user.wishlist.find(prodcutId => prodcutId.toString()===prodcut_id.toString());
+    if(alreadeyAdded){
+       const done= await User.findByIdAndUpdate(userId,{
+           $pull:{wishlist:prodcut_id}
+       },{new:true,projection: { '__v': 0, 'password': 0 }});
+       if(!done){
+        return next(appError.create("there's a problem",400));
+       }
+       res.status(200).json({status:httpmessage.SUCCESS,data:done});
+    }else{
+        const done= await User.findByIdAndUpdate(userId,{
+            $push:{wishlist:prodcut_id}
+        },{new:true,projection: { '__v': 0, 'password': 0 }});
+        if(!done){
+         return next(appError.create("there's a problem",400));
+        }
+        res.status(200).json({status:httpmessage.SUCCESS,data:done});
+    }
+
+});
+
+const AddRating = asyncWrapper(async (req,res,next)=>{
+    const userId = req.user.id;
+    const {star,comment,prodId}=req.body;
+    verifyid(prodId);
+    if(!(star >0 && star <=5)) return next(appError.create("invlid number of starts",400));
+    const product = await Product.findById(prodId);
+    if(!product) return next(appError.create("invalid product id",400));
+    const alreadyRated = product.ratings.find(prod => prod.postedby.toString()===userId.toString());
+    console.log("hello")
+    if(alreadyRated){
+        const done = await Product.updateOne(
+            {
+                ratings:{$elemMatch:alreadyRated}
+            },
+            {
+                $set:{"ratings.$.star":star,"ratings.$.comment":comment}
+            },{
+                new:true
+            }
+        )
+        if(!done){
+            return next(appError.create("there's a problem",400));
+           }
+    }else{
+        const done= await Product.findByIdAndUpdate(prodId,{
+            $push:{ratings:{
+                star:star,
+                comment:comment,
+                postedby:userId
+            }}
+        },{new:true});
+        if(!done){
+         return next(appError.create("there's a problem",400));
+        }
+        
+    }
+    const getAllRatings = await Product.findById(prodId);
+    let Ratings = getAllRatings.ratings;
+    let sum=0;
+    const size = Ratings.length;
+    Ratings.forEach((item)=>{
+        sum+=item.star;
+    });
+    const totalrating = Math.round(sum/size);
+    const prod = await Product.findByIdAndUpdate(prodId,{
+        $set:{totalrating:totalrating}
+    },{new:true});
+    res.status(200).json({status:httpmessage.SUCCESS,data:prod});
+})
+
 module.exports={
     Getproduct,
     Addproduct,
     GetallProucts,
     deleteProduct,
-    UpdateProduct
+    UpdateProduct,
+    AddToWishlist,
+    AddRating
 }
 

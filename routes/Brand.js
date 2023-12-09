@@ -16,12 +16,12 @@ router.get('/',controllers.getAllBrands);
 //get single Brand
 router.get('/:brandId',controllers.getSingleBrand);
 
-//delete a user
+//delete a Brand
 router.delete('/:brandId',verifytoken,allowTo(userRoles.ADMIN),controllers.deleteBrand);
 
 
 //update a Brand
-router.put('/:brandId',verifytoken,allowTo(userRoles.ADMIN),controllers.CreateBrand);
+router.put('/:brandId',verifytoken,allowTo(userRoles.ADMIN),controllers.UpdateBrand);
 
 
 module.exports= router;

@@ -12,6 +12,7 @@ const ProductRoute = require('./routes/productRoute');
 const PCategory = require('./routes/productCategory');
 const bCategory = require('./routes/blogCategory');
 const BrandRoute = require('./routes/Brand');
+const CouponRoute = require('./routes/coupon');
 const port  = process.env.PORT || 5000 ;
 
 
@@ -35,13 +36,14 @@ app.use('/api/category',PCategory);
 app.use('/api/blogcategory',bCategory);
 //brand route
 app.use('/api/brand',BrandRoute);
+//coupon route
+app.use('/api/coupon',CouponRoute);
 
 app.all('*',(req,res)=>{
     res.status(404).json({status:httpmessage.FAIL,message:"NOT FOUND"});
 })
 
 app.use((error,req,res,next)=>{
-    console.log(error);
     res.json({status:error.statusCode,message:error.message});
 })
 
