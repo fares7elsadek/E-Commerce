@@ -41,9 +41,18 @@ const BlogValidation =()=>{
     ];
 }
 
+
+//product category validation
+const PCategoryValidation =()=>{
+    return [
+        body('title').notEmpty()
+    ];
+}
+
 module.exports={
     UsersRigister,
     UsersLogin,
     ProductValidation,
-    BlogValidation
+    BlogValidation,
+    PCategoryValidation
 }

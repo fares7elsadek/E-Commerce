@@ -9,6 +9,9 @@ const usersRoute = require('./routes/users');
 const morgan = require('morgan');
 const BlogRoute = require('./routes/BlogRoute');
 const ProductRoute = require('./routes/productRoute');
+const PCategory = require('./routes/productCategory');
+const bCategory = require('./routes/blogCategory');
+const BrandRoute = require('./routes/Brand');
 const port  = process.env.PORT || 5000 ;
 
 
@@ -17,6 +20,7 @@ dbConnect();
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
+
 //users authentication
 app.use('/api/user',authusers);
 //users route
@@ -25,12 +29,19 @@ app.use('/api/user',usersRoute);
 app.use('/api/product',ProductRoute);
 //blog route
 app.use('/api/blog',BlogRoute);
+//product category route
+app.use('/api/category',PCategory);
+//blog category route
+app.use('/api/blogcategory',bCategory);
+//brand route
+app.use('/api/brand',BrandRoute);
 
 app.all('*',(req,res)=>{
     res.status(404).json({status:httpmessage.FAIL,message:"NOT FOUND"});
 })
 
 app.use((error,req,res,next)=>{
+    console.log(error);
     res.json({status:error.statusCode,message:error.message});
 })
 

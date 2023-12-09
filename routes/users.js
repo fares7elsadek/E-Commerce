@@ -9,17 +9,17 @@ const controllers = require('../controllers/users');
 
 
 //get all users
-router.get('/all-users',controllers.getAllUsers);
+router.get('/all-users',verifytoken,allowTo(userRoles.ADMIN),controllers.getAllUsers);
 
 
 
 //get single users
-router.get('/:userId',controllers.getSingleUser);
+router.get('/:userId',verifytoken,allowTo(userRoles.ADMIN),controllers.getSingleUser);
 
 
 
 //delete a user
-router.delete('/:userId',controllers.deleteUser);
+router.delete('/:userId',verifytoken,allowTo(userRoles.ADMIN),controllers.deleteUser);
 
 
 //update a user

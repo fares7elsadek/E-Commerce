@@ -27,7 +27,9 @@ const GetABlog = asyncWrapper(async (req,res,next)=>{
     const id = req.params.blogId;
     verifyid(id);
     let blog = await Blog.findById(id);
-    blog = await Blog.findByIdAndUpdate(id,{$inc:{numViews:1}},{new:true});
+    blog = await Blog.findByIdAndUpdate(id,{$inc:{numViews:1}},{new:true})
+    .populate({path:"likes",select:'firstname lastname role email'})
+    .populate({path:"dislikes",select:'firstname lastname role email'});
     res.status(200).json({status:httpmessage.SUCCESS,data:{blog}});
 });
 
