@@ -5,7 +5,10 @@ const { body,validationResult} = require('express-validator');
 const httpmessage = require('../utils/htttpmessage');
 const verifyid = require('../utils/verifymongoid');
 const appError = require('../utils/appError');
+const cloudinaryUploadImage = require('../utils/cloudinary');
+const fs = require('fs');
 const slugify = require('slugify');
+const { log } = require('console');
 
 
 
@@ -155,6 +158,33 @@ const AddRating = asyncWrapper(async (req,res,next)=>{
     res.status(200).json({status:httpmessage.SUCCESS,data:prod});
 })
 
+//upload image
+const UploadImage = asyncWrapper(async(req,res,next)=>{
+     const {prodId} = req.params;
+     verifyid(prodId);
+     try{
+          const uploader = (path) => cloudinaryUploadImage(path,"images");
+          const urls=[];
+          const files=req.files;
+          for(const file of files){
+            const {path} =file;
+            const newpath = await uploader(path);
+            urls.push(newpath);
+          }
+          const product = await Product.findByIdAndUpdate(prodId,{
+            images:urls.map((file)=>{return file}),
+          },{new:true});
+          for(const file of req.files){
+            const {path} =file;
+            fs.unlinkSync(path);
+          }
+          res.json(product);
+     }catch(error){
+        throw new Error(error);
+     }
+     
+})
+
 module.exports={
     Getproduct,
     Addproduct,
@@ -162,6 +192,7 @@ module.exports={
     deleteProduct,
     UpdateProduct,
     AddToWishlist,
-    AddRating
+    AddRating,
+    UploadImage
 }
 
