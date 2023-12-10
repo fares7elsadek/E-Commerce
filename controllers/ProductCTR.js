@@ -170,14 +170,11 @@ const UploadImage = asyncWrapper(async(req,res,next)=>{
             const {path} =file;
             const newpath = await uploader(path);
             urls.push(newpath);
+            fs.unlinkSync(path);
           }
           const product = await Product.findByIdAndUpdate(prodId,{
             images:urls.map((file)=>{return file}),
           },{new:true});
-          for(const file of req.files){
-            const {path} =file;
-            fs.unlinkSync(path);
-          }
           res.json(product);
      }catch(error){
         throw new Error(error);

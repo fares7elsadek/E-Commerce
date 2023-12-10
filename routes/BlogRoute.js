@@ -5,11 +5,14 @@ const allowTo = require('../middlewares/allowTo');
 const userRoles = require('../utils/userRoles');
 const controllers = require('../controllers/BlogCTRL');
 const validation = require('../middlewares/validationShema');
-
+const upload = require('../middlewares/UploadImages')
 
 //Create new Blog
 router.post('/',verifytoken,allowTo(userRoles.ADMIN),validation.BlogValidation(),controllers.AddBlog);
 
+//upload blog photo
+router.put('/upload/:blogId',verifytoken,allowTo(userRoles.ADMIN)
+,upload.uploadPhoto.array("images",2),controllers.UploadImage);
 
 //get A Blog
 router.get('/:blogId',controllers.GetABlog);

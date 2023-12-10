@@ -3,6 +3,8 @@ const asyncWrapper = require('../middlewares/asyncWrapper');
 const { body,validationResult} = require('express-validator');
 const httpmessage = require('../utils/htttpmessage');
 const verifyid = require('../utils/verifymongoid');
+const cloudinaryUploadImage = require('../utils/cloudinary');
+const fs = require('fs');
 const appError = require('../utils/appError');
 
 
@@ -155,6 +157,30 @@ const dislikeAblog = asyncWrapper(async (req,res,next)=>{
     }
 });
 
+//upload 
+const UploadImage = asyncWrapper(async(req,res,next)=>{
+    const {blogId} = req.params;
+    verifyid(blogId);
+    try{
+         const uploader = (path) => cloudinaryUploadImage(path,"images");
+         const urls=[];
+         const files=req.files;
+         for(const file of files){
+           const {path} =file;
+           const newpath = await uploader(path);
+           urls.push(newpath);
+           fs.unlinkSync(path);
+         }
+         const blog = await Blog.findByIdAndUpdate(blogId,{
+           images:urls.map((file)=>{return file}),
+         },{new:true});
+         res.json(blog);
+    }catch(error){
+       throw new Error(error);
+    }
+    
+})
+
 module.exports={
     AddBlog,
     GetABlog,
@@ -162,6 +188,7 @@ module.exports={
     deleteBlog,
     UpdateBlog,
     likeAblog,
-    dislikeAblog
+    dislikeAblog,
+    UploadImage
 }
 
