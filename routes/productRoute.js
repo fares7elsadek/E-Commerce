@@ -13,7 +13,7 @@ router.post('/',verifytoken,allowTo(userRoles.ADMIN),validation.ProductValidatio
 
 //upload product
 router.put('/upload/:prodId',verifytoken,allowTo(userRoles.ADMIN)
-,upload.uploadPhoto.array("images",10),upload.productImgResize,controllers.UploadImage);
+,upload.uploadPhoto.array("images",10),controllers.UploadImage);
 
 
 

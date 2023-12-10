@@ -1,5 +1,4 @@
 const multer = require("multer");
-const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
 const storage = multer.diskStorage({
@@ -26,33 +25,5 @@ const uploadPhoto = multer({
   limits: { fileSize: 1000000 },
 });
 
-const productImgResize = async (req, res, next) => {
-  if (!req.files) return next();
-  await Promise.all(
-    req.files.map(async (file) => {
-      await sharp(file.path)
-        .resize(300, 300)
-        .toFormat("jpeg")
-        .jpeg({ quality: 90 })
-        .toFile(`uploads/products/${file.filename}`);
-      fs.unlinkSync(`uploads/products/${file.filename}`);
-    })
-  );
-  next();
-};
 
-const blogImgResize = async (req, res, next) => {
-  if (!req.files) return next();
-  await Promise.all(
-    req.files.map(async (file) => {
-      await sharp(file.path)
-        .resize(300, 300)
-        .toFormat("jpeg")
-        .jpeg({ quality: 90 })
-        .toFile(`uploads/blogs/${file.filename}`);
-      fs.unlinkSync(`uploads/blogs/${file.filename}`);
-    })
-  );
-  next();
-};
-module.exports = { uploadPhoto, productImgResize, blogImgResize };
+module.exports = { uploadPhoto };
