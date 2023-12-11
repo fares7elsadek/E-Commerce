@@ -14,6 +14,10 @@ router.post('/register',validation.UsersRigister(),controllers.registerUser);
 //login user
 router.post('/login',validation.UsersLogin(),controllers.loginUser);
 
+
+//login user
+router.post('/admin-login',validation.UsersLogin(),controllers.loginAdmin);
+
 //block user
 router.put('/block-user/:userId',verifyToken,allowTo(userRoles.ADMIN),controllers.blockUser);
 

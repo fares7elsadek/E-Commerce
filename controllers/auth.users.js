@@ -88,6 +88,47 @@ const loginUser = asyncWrapper(async (req,res,next)=>{
 });
 
 
+//admin login
+const loginAdmin = asyncWrapper(async (req,res,next)=>{
+    const {email,password} = req.body;
+    const err=validationResult(req);
+    if(!err.isEmpty()){
+        const message=err.array();
+        const statusCode = 400;
+        const error = appError.create(message,statusCode);
+        return next(error);
+    }
+    const user = await User.findOne({email:email});
+    if(user.role!=="admin") return next(appError.create("Not Authoraized",400));
+    if(!user){
+        const error = appError.create("invalid username or password",400);
+        return next(error);
+    }
+    const result = await bcrypt.compare(String(password),user.password);
+    if(!result){
+        const error = appError.create("invalid username or password",400);
+        return next(error);
+    }
+    const access_token = jwt.generateToken(user._id,user.firstname,user.role);
+    const reftoken = refreshtoken.generateRefreshToken(user._id,user.firstname,user.role);
+    await User.findByIdAndUpdate(user._id,{token:reftoken});
+    res.cookie('refreshToken',reftoken,{
+        httpOnly:true,
+        maxAge:72*60*60*1000
+    });
+    user.token=access_token;
+    const userData = {
+        firstname:user.firstname,
+        lastname:user.lastname,
+        email:user.email,
+        mobile:user.mobile,
+        role:user.role,
+        token:user.token
+    };
+    res.status(200).json({status:httpmessage.SUCCESS,data:{userData}});
+});
+
+
 //block user
 const blockUser = asyncWrapper(async(req,res,next)=>{
     const id = req.params.userId;
@@ -242,5 +283,6 @@ module.exports = {
     logout,
     UpdatePassword,
     forgotPasswordToken,
-    resetPassword
+    resetPassword,
+    loginAdmin
 }
